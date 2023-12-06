@@ -1,0 +1,54 @@
+#!/usr/bin/env -S PYTHONDONTWRITEBYTECODE=1 python3
+
+from argparse import ArgumentParser
+from importlib.util import spec_from_file_location, module_from_spec
+from pathlib import Path
+from types import ModuleType
+from typing import Literal
+
+
+EXAMPLE_PATH = Path("example.txt")
+EXAMPLE2_PATH = Path("example2.txt")
+DATA_PATH = Path("data.txt")
+
+
+def get_parser() -> ArgumentParser:
+    parser = ArgumentParser()
+    parser.add_argument("--day", required=True, type=int)
+    parser.add_argument("--part", required=True, type=int, choices=[1, 2])
+    return parser
+
+
+def get_data_path(day: int, name: Path) -> Path:
+    return Path(f"puzzles/day{day}") / name
+
+
+def get_lines(path: Path) -> list[str]:
+    return path.read_text().splitlines()
+
+
+def import_day_module(day: int, part: Literal[1, 2]) -> ModuleType:
+    path_to_day = Path(f"puzzles/day{day}")
+    if not path_to_day.exists():
+        raise FileNotFoundError(path_to_day)
+    path_to_part = path_to_day / f"part{part}.py"
+    if not path_to_part.exists():
+        raise FileNotFoundError(path_to_part)
+    spec = spec_from_file_location(f"part{part}", path_to_part)
+    assert spec
+    assert spec.loader
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+args = get_parser().parse_args()
+part_module = import_day_module(args.day, args.part)
+
+for path in [get_data_path(args.day, data_name) for data_name in [EXAMPLE_PATH, EXAMPLE2_PATH, DATA_PATH]]:
+    try:
+        result = part_module.calc(get_lines(path))
+    except Exception as err:
+        print(f"Exception: {err}")
+    else:
+        print(result)
