@@ -7,7 +7,7 @@ def calc(lines: list[str]) -> int:
         _, subsets = line.split(":")
         max_color = {"red": 0, "green": 0, "blue": 0}
         for subset in subsets.split(";"):
-            for cube in subset.split(','):
+            for cube in subset.split(","):
                 cnt, color = cube.strip().split(maxsplit=1)
                 color = color.strip()
                 cnt = int(cnt)
