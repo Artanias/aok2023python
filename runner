@@ -2,14 +2,10 @@
 
 from argparse import ArgumentParser
 from importlib.util import spec_from_file_location, module_from_spec
+from os import listdir
 from pathlib import Path
 from types import ModuleType
 from typing import Literal
-
-
-EXAMPLE_PATH = Path("example.txt")
-EXAMPLE2_PATH = Path("example2.txt")
-DATA_PATH = Path("data.txt")
 
 
 def get_parser() -> ArgumentParser:
@@ -45,12 +41,17 @@ def import_day_module(day: int, part: Literal[1, 2]) -> ModuleType:
 args = get_parser().parse_args()
 part_module = import_day_module(args.day, args.part)
 
-for path in [get_data_path(args.day, data_name) for data_name in [EXAMPLE_PATH, EXAMPLE2_PATH, DATA_PATH]]:
+for path in [
+    get_data_path(args.day, data_name)
+    for data_name in filter(
+        lambda string: string.endswith("txt"), listdir(f"puzzles/day{args.day}")
+    )
+]:
     if not path.exists():
         continue
     try:
         result = part_module.calc(get_lines(path))
     except Exception as err:
-        print(f"Exception: {err}")
+        print(f"'{path}'. Exception: {err}")
     else:
-        print(result)
+        print(f"'{path}': {result}")
