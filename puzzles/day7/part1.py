@@ -18,7 +18,9 @@ def calc(lines: list[str]) -> int:
     for line in lines:
         hand, bid_amount = line.split()
         bid_amount = int(bid_amount)
-        line_score = sum((CARDS.find(letter) * CNT_CARDS ** i) for i, letter in enumerate(hand[::-1]))
+        line_score = sum(
+            (CARDS.find(letter) * CNT_CARDS**i) for i, letter in enumerate(hand[::-1])
+        )
         cnt_letters = get_cnt_letters(hand)
         cnt_uniq = len(cnt_letters)
         # five of a kind
